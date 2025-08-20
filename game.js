@@ -28,10 +28,211 @@ const screens = {
 function showScreen(screenName) {
     Object.values(screens).forEach(screen => screen.classList.remove('active'));
     screens[screenName].classList.add('active');
+    
+    if (screenName === 'mode') {
+        updateModeScreen();
+    } else if (screenName === 'menu') {
+        updateTopicTiers();
+    }
+}
+
+function updateModeScreen() {
+    // Näytä nykyinen aihe
+    const topicNames = {
+        animals: 'Eläimet',
+        colors: 'Värit', 
+        numbers: 'Numerot',
+        food: 'Ruoka',
+        family: 'Perhe',
+        school: 'Koulu',
+        body: 'Keho',
+        clothes: 'Vaatteet'
+    };
+    document.getElementById('current-topic-name').textContent = topicNames[currentTopic] || currentTopic;
+    
+    updateTopicProgressDisplay();
+    updateGameModeUnlocks();
+}
+
+function updateGameModeUnlocks() {
+    const topicStats = progressTracker.getMasteryStats(currentTopic);
+    if (!topicStats) return;
+    
+    const learnProgress = getGameModeProgress(currentTopic, 'learn');
+    const practiceProgress = getGameModeProgress(currentTopic, 'practice');
+    const choiceProgress = getGameModeProgress(currentTopic, 'choice');
+    
+    // Oppiminen - aina saatavilla
+    document.getElementById('learn-progress').style.width = learnProgress + '%';
+    document.getElementById('learn-progress-text').textContent = learnProgress + '%';
+    
+    // Kirjoitusharjoitus - 30% oppimisesta
+    const practiceCard = document.getElementById('practice-card');
+    const practiceBtn = practiceCard.querySelector('button');
+    const practiceReq = document.getElementById('practice-requirement');
+    const practiceIndicator = practiceCard.querySelector('.progress-indicator');
+    
+    if (learnProgress >= 30) {
+        practiceCard.classList.add('available');
+        practiceCard.classList.remove('locked');
+        practiceBtn.disabled = false;
+        practiceReq.style.display = 'none';
+        practiceIndicator.classList.remove('hidden');
+        document.getElementById('practice-progress').style.width = practiceProgress + '%';
+        document.getElementById('practice-progress-text').textContent = practiceProgress + '%';
+    } else {
+        practiceCard.classList.remove('available');
+        practiceCard.classList.add('locked');
+        practiceBtn.disabled = true;
+        practiceReq.style.display = 'block';
+        practiceReq.textContent = `🔒 Avautuu kun oppiminen 30% valmis (nyt ${learnProgress}%)`;
+        practiceIndicator.classList.add('hidden');
+    }
+    
+    // Monivalinta - 50% harjoittelusta
+    const choiceCard = document.getElementById('choice-card');
+    const choiceBtn = choiceCard.querySelector('button');
+    const choiceReq = document.getElementById('choice-requirement');
+    const choiceIndicator = choiceCard.querySelector('.progress-indicator');
+    
+    if (practiceProgress >= 50) {
+        choiceCard.classList.add('available');
+        choiceCard.classList.remove('locked');
+        choiceBtn.disabled = false;
+        choiceReq.style.display = 'none';
+        choiceIndicator.classList.remove('hidden');
+        document.getElementById('choice-progress').style.width = choiceProgress + '%';
+        document.getElementById('choice-progress-text').textContent = choiceProgress + '%';
+    } else {
+        choiceCard.classList.remove('available');
+        choiceCard.classList.add('locked');
+        choiceBtn.disabled = true;
+        choiceReq.style.display = 'block';
+        choiceReq.textContent = `🔒 Avautuu kun harjoittelu 50% valmis (nyt ${practiceProgress}%)`;
+        choiceIndicator.classList.add('hidden');
+    }
+    
+    // Kuunteluharjoitus - 70% monivalinnasta
+    const listenCard = document.getElementById('listen-card');
+    const listenBtn = listenCard.querySelector('button');
+    const listenReq = document.getElementById('listen-requirement');
+    const listenIndicator = listenCard.querySelector('.progress-indicator');
+    const listenProgress = getGameModeProgress(currentTopic, 'listen');
+    
+    if (choiceProgress >= 70) {
+        listenCard.classList.add('available');
+        listenCard.classList.remove('locked');
+        listenBtn.disabled = false;
+        listenReq.style.display = 'none';
+        listenIndicator.classList.remove('hidden');
+        document.getElementById('listen-progress').style.width = listenProgress + '%';
+        document.getElementById('listen-progress-text').textContent = listenProgress + '%';
+    } else {
+        listenCard.classList.remove('available');
+        listenCard.classList.add('locked');
+        listenBtn.disabled = true;
+        listenReq.style.display = 'block';
+        listenReq.textContent = `🔒 Avautuu kun monivalinta 70% valmis (nyt ${choiceProgress}%)`;
+        listenIndicator.classList.add('hidden');
+    }
+}
+
+function getGameModeProgress(topic, mode) {
+    const topicData = progressTracker.progress.topics[topic];
+    if (!topicData) return 0;
+    
+    const words = Object.values(topicData.words);
+    const totalWords = words.length;
+    
+    // Laske kuinka monta sanaa on "hallittu" tässä pelimoodissa
+    let completedWords = 0;
+    
+    words.forEach(wordProgress => {
+        // Eri kriteerit eri pelimoodeille
+        switch(mode) {
+            case 'learn':
+                // Oppiminen: sana on nähty ainakin kerran
+                if (wordProgress.attempts > 0) completedWords++;
+                break;
+            case 'practice':
+                // Harjoittelu: vähintään 70% oikeellisuus ja 2+ yritystä
+                if (wordProgress.attempts >= 2 && (wordProgress.correct / wordProgress.attempts) >= 0.7) {
+                    completedWords++;
+                }
+                break;
+            case 'choice':
+                // Monivalinta: vähintään 80% oikeellisuus ja 3+ yritystä
+                if (wordProgress.attempts >= 3 && (wordProgress.correct / wordProgress.attempts) >= 0.8) {
+                    completedWords++;
+                }
+                break;
+            case 'listen':
+                // Kuuntelu: vähintään 90% oikeellisuus ja 5+ yritystä  
+                if (wordProgress.attempts >= 5 && (wordProgress.correct / wordProgress.attempts) >= 0.9) {
+                    completedWords++;
+                }
+                break;
+        }
+    });
+    
+    return totalWords > 0 ? Math.round((completedWords / totalWords) * 100) : 0;
+}
+
+function updateTopicTiers() {
+    const basicTopics = ['animals', 'colors', 'numbers'];
+    const intermediateTopics = ['food', 'family'];
+    const advancedTopics = ['school', 'body', 'clothes'];
+    
+    // Laske perusteiden edistyminen
+    const basicProgress = basicTopics.reduce((sum, topic) => {
+        return sum + progressTracker.getTopicProgress(topic);
+    }, 0) / basicTopics.length;
+    
+    // Laske keskitason edistyminen
+    const intermediateProgress = intermediateTopics.reduce((sum, topic) => {
+        return sum + progressTracker.getTopicProgress(topic);
+    }, 0) / intermediateTopics.length;
+    
+    // Lukitse/avaa tasot
+    const intermediateTier = document.getElementById('intermediate-tier');
+    const advancedTier = document.getElementById('advanced-tier');
+    
+    // Keskitaso
+    if (basicProgress >= 50) {
+        intermediateTier.classList.remove('locked');
+        intermediateTopics.forEach(topic => {
+            const btn = document.querySelector(`[data-topic="${topic}"]`);
+            if (btn) btn.disabled = false;
+        });
+    } else {
+        intermediateTier.classList.add('locked');
+        intermediateTopics.forEach(topic => {
+            const btn = document.querySelector(`[data-topic="${topic}"]`);
+            if (btn) btn.disabled = true;
+        });
+    }
+    
+    // Edistynyt taso
+    if (intermediateProgress >= 70) {
+        advancedTier.classList.remove('locked');
+        advancedTopics.forEach(topic => {
+            const btn = document.querySelector(`[data-topic="${topic}"]`);
+            if (btn) btn.disabled = false;
+        });
+    } else {
+        advancedTier.classList.add('locked');
+        advancedTopics.forEach(topic => {
+            const btn = document.querySelector(`[data-topic="${topic}"]`);
+            if (btn) btn.disabled = true;
+        });
+    }
 }
 
 document.querySelectorAll('.topic-btn').forEach(btn => {
     btn.addEventListener('click', (e) => {
+        if (e.target.disabled) {
+            return; // Älä anna klikata lukittuja aiheita
+        }
         currentTopic = e.target.dataset.topic;
         showScreen('mode');
     });
@@ -42,7 +243,7 @@ function initAudio() {
     try {
         audioContext = new (window.AudioContext || window.webkitAudioContext)();
     } catch (e) {
-        console.log('Web Audio API ei ole tuettu:', e);
+        // Web Audio API ei ole tuettu
         soundEffectsEnabled = false;
     }
 }
@@ -73,7 +274,7 @@ function playSound(frequency, duration, type = 'sine', volume = 0.1) {
         oscillator.start(audioContext.currentTime);
         oscillator.stop(audioContext.currentTime + duration);
     } catch (e) {
-        console.log('Äänitehoste epäonnistui:', e);
+        // Äänitehoste epäonnistui
     }
 }
 
@@ -554,7 +755,7 @@ function initSpeechRecognition() {
                 
                 isListening = false;
                 
-                console.log('Lopullinen tulos:', transcript, 'Luottamus:', confidencePercent + '%');
+                // Lopullinen puheentunnistustulos
                 
                 // Vältetään palauteluuppi odottamalla hetki ennen vastauksen tarkistusta
                 setTimeout(() => {
@@ -566,13 +767,13 @@ function initSpeechRecognition() {
                 const feedbackEl = document.getElementById('speech-feedback');
                 feedbackEl.innerHTML = `🎤 Kuuntelen: "${transcript}..."<br><span style="font-size: 0.8em; color: #666;">Jatka puhumista...</span>`;
                 
-                console.log('Väliaikainen tulos:', transcript);
+                // Väliaikainen puheentunnistustulos
             }
         };
         
         recognition.onerror = (event) => {
             isListening = false;
-            console.log('Puheentunnistusvirhe:', event.error);
+            // Puheentunnistusvirhe
             
             stopMicrophoneVisualization();
             
@@ -994,12 +1195,12 @@ function checkAnswer(answer) {
         const similarity = calculateSimilarity(answer, expectedAnswer);
         const partialMatch = answer.length >= 4 && expectedAnswer.startsWith(answer) && answer.length / expectedAnswer.length >= 0.6;
         
-        console.log(`Vastaus: "${answer}", Odotettu: "${expectedAnswer}", Samankaltaisuus: ${similarity}, Osittainen: ${partialMatch}`);
+        // Vastauksen analyysi
         
         // Hyväksy osittaiset vastaukset pitkille sanoille jos ne ovat tarpeeksi lähellä
         if (similarity > 0.7 || partialMatch) {
             isCorrect = true;
-            console.log('Hyväksytty osittaisena vastauksena');
+            // Hyväksytty osittaisena vastauksena;
         }
     }
     
@@ -1039,7 +1240,7 @@ function checkAnswer(answer) {
         }
         
         // Täydellisyysbonus
-        if (responseTime < 2) {
+        if (calcResponseTime < 2) {
             perfectAnswers++;
             pointsEarned += 20;
             bonusText += ' 🎆 Täydellinen! (+20)';
@@ -1070,7 +1271,7 @@ function checkAnswer(answer) {
         if (inputEl) inputEl.classList.add('correct');
         
         // Äänitehosteet
-        if (perfectAnswers > 0 && responseTime < 2) {
+        if (perfectAnswers > 0 && calcResponseTime < 2) {
             playPerfectSound();
         } else if (streak >= 5) {
             playStreakSound(streak);

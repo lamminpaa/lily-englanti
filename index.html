@@ -17,73 +17,123 @@
         </header>
 
         <div id="menu-screen" class="screen active">
-            <h2>Valitse aihe</h2>
-            <div class="topic-grid">
-                <button class="topic-btn" data-topic="animals">🐾 Eläimet</button>
-                <button class="topic-btn" data-topic="colors">🎨 Värit</button>
-                <button class="topic-btn" data-topic="numbers">🔢 Numerot</button>
-                <button class="topic-btn" data-topic="food">🍎 Ruoka</button>
-                <button class="topic-btn" data-topic="family">👨‍👩‍👧‍👦 Perhe</button>
-                <button class="topic-btn" data-topic="school">📚 Koulu</button>
-                <button class="topic-btn" data-topic="body">👤 Keho</button>
-                <button class="topic-btn" data-topic="clothes">👕 Vaatteet</button>
+            <h2>🗺️ Oppimispolku</h2>
+            
+            <div class="learning-path">
+                <div class="topic-tier" id="basic-tier">
+                    <h3>🌟 Perusteet</h3>
+                    <p>Aloita täältä - nämä aiheet ovat aina saatavilla</p>
+                    <div class="topic-grid">
+                        <button class="topic-btn" data-topic="animals" data-tier="basic">🐾 Eläimet</button>
+                        <button class="topic-btn" data-topic="colors" data-tier="basic">🎨 Värit</button>
+                        <button class="topic-btn" data-topic="numbers" data-tier="basic">🔢 Numerot</button>
+                    </div>
+                </div>
+                
+                <div class="topic-tier" id="intermediate-tier">
+                    <h3>🚀 Keskitaso</h3>
+                    <p class="tier-requirement">Avautuu kun perusteet 50% valmiina</p>
+                    <div class="topic-grid">
+                        <button class="topic-btn" data-topic="food" data-tier="intermediate">🍎 Ruoka</button>
+                        <button class="topic-btn" data-topic="family" data-tier="intermediate">👨‍👩‍👧‍👦 Perhe</button>
+                    </div>
+                </div>
+                
+                <div class="topic-tier" id="advanced-tier">
+                    <h3>🏆 Edistynyt</h3>
+                    <p class="tier-requirement">Avautuu kun keskitaso 70% valmiina</p>
+                    <div class="topic-grid">
+                        <button class="topic-btn" data-topic="school" data-tier="advanced">📚 Koulu</button>
+                        <button class="topic-btn" data-topic="body" data-tier="advanced">👤 Keho</button>
+                        <button class="topic-btn" data-topic="clothes" data-tier="advanced">👕 Vaatteet</button>
+                    </div>
+                </div>
             </div>
         </div>
 
         <div id="mode-screen" class="screen">
-            <h2>Miten haluat oppia?</h2>
-            <div class="game-modes">
-                <div class="mode-card learn-card">
-                    <div class="mode-icon">📚</div>
-                    <h3>Opettele uudet sanat</h3>
-                    <p>Opi sanat ensin rauhassa. Kuulet ääntämisen ja näet kirjoitusasun.</p>
-                    <div class="features">
-                        <span class="feature">🔊 Ääntäminen</span>
-                        <span class="feature">👁️ Visuaalinen oppiminen</span>
-                        <span class="feature">⏰ Oma tahti</span>
+            <h2>🎯 Harjoituspolku: <span id="current-topic-name"></span></h2>
+            
+            <div class="game-modes-path">
+                <div class="mode-step" data-step="1">
+                    <div class="step-number">1</div>
+                    <div class="mode-card learn-card available">
+                        <div class="mode-icon">📚</div>
+                        <h3>Opettele uudet sanat</h3>
+                        <p>Aloita tästä - opi sanat ensin rauhassa.</p>
+                        <div class="progress-indicator">
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini" id="learn-progress"></div>
+                            </div>
+                            <span class="progress-text" id="learn-progress-text">0%</span>
+                        </div>
+                        <button class="mode-btn primary-btn" data-gamemode="learn">
+                            Aloita oppiminen
+                        </button>
                     </div>
-                    <button class="mode-btn primary-btn" data-gamemode="learn">
-                        Aloita oppiminen
-                    </button>
                 </div>
-                <div class="mode-card practice-card">
-                    <div class="mode-icon">✍️</div>
-                    <h3>Kirjoitusharjoitus</h3>
-                    <p>Kirjoita oikea englanninkielinen sana näkemäsi kuvan perusteella.</p>
-                    <div class="features">
-                        <span class="feature">⌨️ Kirjoita sana</span>
-                        <span class="feature">🎤 Puheentunnistus</span>
-                        <span class="feature">📈 Seuraa edistymistä</span>
+                
+                <div class="mode-step" data-step="2">
+                    <div class="step-number">2</div>
+                    <div class="mode-card practice-card" id="practice-card">
+                        <div class="mode-icon">✍️</div>
+                        <h3>Kirjoitusharjoitus</h3>
+                        <p>Harjoittele kirjoittamista ja puhumista.</p>
+                        <div class="unlock-requirement" id="practice-requirement">
+                            🔒 Avautuu kun oppiminen 30% valmis
+                        </div>
+                        <div class="progress-indicator hidden">
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini" id="practice-progress"></div>
+                            </div>
+                            <span class="progress-text" id="practice-progress-text">0%</span>
+                        </div>
+                        <button class="mode-btn secondary-btn" data-gamemode="practice" disabled>
+                            Aloita harjoittelu
+                        </button>
                     </div>
-                    <button class="mode-btn secondary-btn" data-gamemode="practice">
-                        Aloita harjoittelu
-                    </button>
                 </div>
-                <div class="mode-card choice-card">
-                    <div class="mode-icon">🎯</div>
-                    <h3>Monivalinta</h3>
-                    <p>Valitse oikea englanninkielinen sana neljästä vaihtoehdosta.</p>
-                    <div class="features">
-                        <span class="feature">🎲 4 vaihtoehtoa</span>
-                        <span class="feature">⚡ Nopea peli</span>
-                        <span class="feature">🏆 Hauskaa kilpailua</span>
+                
+                <div class="mode-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="mode-card choice-card" id="choice-card">
+                        <div class="mode-icon">🎯</div>
+                        <h3>Monivalinta</h3>
+                        <p>Testaa nopeasti oikeat vastaukset.</p>
+                        <div class="unlock-requirement" id="choice-requirement">
+                            🔒 Avautuu kun harjoittelu 50% valmis
+                        </div>
+                        <div class="progress-indicator hidden">
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini" id="choice-progress"></div>
+                            </div>
+                            <span class="progress-text" id="choice-progress-text">0%</span>
+                        </div>
+                        <button class="mode-btn third-btn" data-gamemode="choice" disabled>
+                            Aloita testi
+                        </button>
                     </div>
-                    <button class="mode-btn third-btn" data-gamemode="choice">
-                        Aloita testi
-                    </button>
                 </div>
-                <div class="mode-card listen-card">
-                    <div class="mode-icon">👂</div>
-                    <h3>Kuunteluharjoitus</h3>
-                    <p>Kuuntele sana ja valitse oikea suomenkielinen käännös.</p>
-                    <div class="features">
-                        <span class="feature">🔊 Kuuntelu</span>
-                        <span class="feature">🇫🇮 Suomenkieliset vaihtoehdot</span>
-                        <span class="feature">👂 Ääntämisen harjoittelu</span>
+                
+                <div class="mode-step" data-step="4">
+                    <div class="step-number">4</div>
+                    <div class="mode-card listen-card" id="listen-card">
+                        <div class="mode-icon">👂</div>
+                        <h3>Kuunteluharjoitus</h3>
+                        <p>Haasta itsesi kuuntelulla - vaikein taso!</p>
+                        <div class="unlock-requirement" id="listen-requirement">
+                            🔒 Avautuu kun monivalinta 70% valmis
+                        </div>
+                        <div class="progress-indicator hidden">
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini" id="listen-progress"></div>
+                            </div>
+                            <span class="progress-text" id="listen-progress-text">0%</span>
+                        </div>
+                        <button class="mode-btn fourth-btn" data-gamemode="listen" disabled>
+                            Aloita kuuntelu
+                        </button>
                     </div>
-                    <button class="mode-btn fourth-btn" data-gamemode="listen">
-                        Aloita kuuntelu
-                    </button>
                 </div>
             </div>
             <div class="progress-info">
