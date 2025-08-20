@@ -1849,24 +1849,23 @@ analyzeImageBtn.addEventListener('click', async () => {
     document.getElementById('step-processing').style.display = 'block';
     
     try {
-        // Mock AI analysis - täytä oikealla OCR:llä myöhemmin
-        setTimeout(() => {
-            // Simuloitu tunnistustulos
-            detectedWords = [
-                { english: 'cat', finnish: 'kissa' },
-                { english: 'dog', finnish: 'koira' },
-                { english: 'house', finnish: 'talo' },
-                { english: 'car', finnish: 'auto' },
-                { english: 'book', finnish: 'kirja' }
-            ];
-            
-            showDetectedWords();
-        }, 2000);
+        // 1. Yritä ensin modernia Web OCR API:a
+        const ocrText = await extractTextFromImage(currentImageFile);
+        
+        // 2. Parsi teksti AI:lla ja etsi sanapareja
+        detectedWords = await parseWordPairs(ocrText);
+        
+        if (detectedWords.length === 0) {
+            throw new Error('Ei löytynyt sanapareja kuvasta');
+        }
+        
+        showDetectedWords();
         
     } catch (error) {
-        alert('Kuvan analysoimisessa tapahtui virhe. Kokeile uudelleen.');
-        document.getElementById('step-capture').style.display = 'block';
-        document.getElementById('step-processing').style.display = 'none';
+        console.error('AI parsing error:', error);
+        
+        // Fallback: Kysy käyttäjältä manuaalista syöttöä
+        showManualInputFallback();
     }
 });
 
@@ -1895,6 +1894,295 @@ function showDetectedWords() {
 function removeWord(index) {
     detectedWords.splice(index, 1);
     showDetectedWords();
+}
+
+// AI-powered text extraction and parsing
+async function extractTextFromImage(imageFile) {
+    // Yritä useita eri OCR-menetelmiä
+    
+    // 1. Tesseract.js (client-side OCR)
+    if (window.Tesseract) {
+        try {
+            const { data: { text } } = await Tesseract.recognize(imageFile, 'eng+fin');
+            return text;
+        } catch (e) {
+            console.log('Tesseract failed, trying other methods...');
+        }
+    }
+    
+    // 2. Google Vision API (jos saatavilla)
+    try {
+        return await googleVisionOCR(imageFile);
+    } catch (e) {
+        console.log('Google Vision failed, trying other methods...');
+    }
+    
+    // 3. Microsoft Computer Vision API
+    try {
+        return await microsoftComputerVisionOCR(imageFile);
+    } catch (e) {
+        console.log('Microsoft API failed, trying other methods...');
+    }
+    
+    // 4. Fallback: Pyydetään käyttäjää syöttämään tekstiä
+    throw new Error('OCR ei onnistunut');
+}
+
+async function googleVisionOCR(imageFile) {
+    // Google Vision API implementation
+    const API_KEY = 'YOUR_GOOGLE_VISION_API_KEY'; // Pitää asettaa
+    
+    const base64 = await fileToBase64(imageFile);
+    const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${API_KEY}`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            requests: [{
+                image: { content: base64.split(',')[1] },
+                features: [{ type: 'TEXT_DETECTION' }]
+            }]
+        })
+    });
+    
+    const result = await response.json();
+    return result.responses[0]?.textAnnotations[0]?.description || '';
+}
+
+async function microsoftComputerVisionOCR(imageFile) {
+    // Microsoft Computer Vision API implementation
+    const API_KEY = 'YOUR_MICROSOFT_API_KEY'; // Pitää asettaa
+    const endpoint = 'YOUR_MICROSOFT_ENDPOINT'; // Pitää asettaa
+    
+    const formData = new FormData();
+    formData.append('image', imageFile);
+    
+    const response = await fetch(`${endpoint}/vision/v3.2/ocr`, {
+        method: 'POST',
+        headers: {
+            'Ocp-Apim-Subscription-Key': API_KEY,
+        },
+        body: formData
+    });
+    
+    const result = await response.json();
+    
+    // Parse Microsoft OCR response
+    let text = '';
+    result.regions?.forEach(region => {
+        region.lines?.forEach(line => {
+            line.words?.forEach(word => {
+                text += word.text + ' ';
+            });
+            text += '\n';
+        });
+    });
+    
+    return text;
+}
+
+async function parseWordPairs(ocrText) {
+    console.log('OCR Text:', ocrText);
+    
+    // Älykkäämpi parsinta useilla menetelmillä
+    let wordPairs = [];
+    
+    // 1. Regex-pohjaiset mallit sanaparien tunnistamiseen
+    wordPairs = [...wordPairs, ...findWordPairsWithRegex(ocrText)];
+    
+    // 2. AI-pohjainen parsinta (käyttää modernia NLP:tä)
+    wordPairs = [...wordPairs, ...await aiPoweredWordPairExtraction(ocrText)];
+    
+    // 3. Heuristinen analyysi rivien perusteella
+    wordPairs = [...wordPairs, ...findWordPairsHeuristic(ocrText)];
+    
+    // Poista duplikaatit ja validoi
+    return removeDuplicatesAndValidate(wordPairs);
+}
+
+function findWordPairsWithRegex(text) {
+    const patterns = [
+        // Englanti - Suomi (esim. "cat - kissa")
+        /([a-zA-Z]+)\s*[-–—]\s*([a-zA-ZäöåÄÖÅ]+)/g,
+        
+        // Suomi - Englanti (esim. "kissa - cat")
+        /([a-zA-ZäöåÄÖÅ]+)\s*[-–—]\s*([a-zA-Z]+)/g,
+        
+        // Tab-erotetut (esim. "cat    kissa")
+        /([a-zA-Z]+)\s{2,}([a-zA-ZäöåÄÖÅ]+)/g,
+        
+        // Numeroidut listat (esim. "1. cat kissa")
+        /\d+\.\s*([a-zA-Z]+)\s+([a-zA-ZäöåÄÖÅ]+)/g,
+        
+        // Sulkeissa käännökset (esim. "cat (kissa)")
+        /([a-zA-Z]+)\s*\(([a-zA-ZäöåÄÖÅ]+)\)/g,
+    ];
+    
+    const wordPairs = [];
+    
+    patterns.forEach(pattern => {
+        let match;
+        while ((match = pattern.exec(text)) !== null) {
+            const word1 = match[1].trim().toLowerCase();
+            const word2 = match[2].trim().toLowerCase();
+            
+            // Tunnista mikä on englantia ja mikä suomea
+            if (isEnglish(word1) && isFinnish(word2)) {
+                wordPairs.push({ english: word1, finnish: word2 });
+            } else if (isFinnish(word1) && isEnglish(word2)) {
+                wordPairs.push({ english: word2, finnish: word1 });
+            }
+        }
+    });
+    
+    return wordPairs;
+}
+
+async function aiPoweredWordPairExtraction(text) {
+    // Simuloitu AI-parsinta - voidaan korvata oikealla AI API:lla
+    const lines = text.split('\n').filter(line => line.trim());
+    const wordPairs = [];
+    
+    for (const line of lines) {
+        // Analysoi jokainen rivi ja yritä löytää sanapareja
+        const words = line.split(/\s+/).filter(word => word.length > 2);
+        
+        if (words.length >= 2) {
+            // Etsi englanti-suomi pareja riviltä
+            for (let i = 0; i < words.length - 1; i++) {
+                const word1 = cleanWord(words[i]);
+                const word2 = cleanWord(words[i + 1]);
+                
+                if (isEnglish(word1) && isFinnish(word2)) {
+                    wordPairs.push({ english: word1, finnish: word2 });
+                } else if (isFinnish(word1) && isEnglish(word2)) {
+                    wordPairs.push({ english: word2, finnish: word1 });
+                }
+            }
+        }
+    }
+    
+    return wordPairs;
+}
+
+function findWordPairsHeuristic(text) {
+    const lines = text.split('\n').filter(line => line.trim().length > 3);
+    const wordPairs = [];
+    
+    lines.forEach(line => {
+        // Poista numerot, välimerkit yms. alusta
+        const cleanLine = line.replace(/^\d+\.?\s*/, '').trim();
+        
+        // Jaa kahteen osaan yleisimmillä erottimilla
+        const separators = ['-', '–', '—', '\t', '  ', ' = ', ' → '];
+        
+        for (const sep of separators) {
+            if (cleanLine.includes(sep)) {
+                const parts = cleanLine.split(sep).map(p => p.trim());
+                if (parts.length === 2) {
+                    const word1 = cleanWord(parts[0]);
+                    const word2 = cleanWord(parts[1]);
+                    
+                    if (word1 && word2) {
+                        if (isEnglish(word1) && isFinnish(word2)) {
+                            wordPairs.push({ english: word1, finnish: word2 });
+                        } else if (isFinnish(word1) && isEnglish(word2)) {
+                            wordPairs.push({ english: word2, finnish: word1 });
+                        }
+                    }
+                }
+                break;
+            }
+        }
+    });
+    
+    return wordPairs;
+}
+
+function isEnglish(word) {
+    // Yksinkertainen englannin kielen tunnistus
+    const englishPattern = /^[a-zA-Z]+$/;
+    const finnishChars = /[äöåÄÖÅ]/;
+    
+    return englishPattern.test(word) && !finnishChars.test(word) && word.length > 1;
+}
+
+function isFinnish(word) {
+    // Suomen kielen tunnistus
+    const finnishChars = /[äöåÄÖÅ]/;
+    const hasOnlyLatinChars = /^[a-zA-ZäöåÄÖÅ]+$/;
+    
+    // Jos sisältää ä, ö, å niin todennäköisesti suomea
+    if (finnishChars.test(word)) {
+        return true;
+    }
+    
+    // Tunnista tyypillisiä suomalaisia päätteitä
+    const finnishEndings = ['nen', 'ttu', 'lla', 'llä', 'ssa', 'ssä', 'sta', 'stä', 'tta', 'ttä'];
+    const wordLower = word.toLowerCase();
+    
+    return hasOnlyLatinChars.test(word) && 
+           word.length > 2 && 
+           finnishEndings.some(ending => wordLower.endsWith(ending));
+}
+
+function cleanWord(word) {
+    // Puhdista sana välimerkeistä ja ylimääräisistä merkeistä
+    return word.replace(/[^\w\säöåÄÖÅ]/g, '').trim().toLowerCase();
+}
+
+function removeDuplicatesAndValidate(wordPairs) {
+    const seen = new Set();
+    const unique = [];
+    
+    wordPairs.forEach(pair => {
+        const key = `${pair.english}-${pair.finnish}`;
+        if (!seen.has(key) && pair.english.length > 1 && pair.finnish.length > 1) {
+            seen.add(key);
+            unique.push(pair);
+        }
+    });
+    
+    return unique;
+}
+
+async function fileToBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = () => resolve(reader.result);
+        reader.onerror = error => reject(error);
+    });
+}
+
+function showManualInputFallback() {
+    document.getElementById('step-processing').style.display = 'none';
+    document.getElementById('step-results').style.display = 'block';
+    
+    // Näytä manuaalinen syöttökenttä
+    const wordsList = document.getElementById('detected-words-list');
+    wordsList.innerHTML = `
+        <div class="manual-input-section">
+            <h4>🤖 AI ei pystynyt tunnistamaan sanoja automaattisesti</h4>
+            <p>Syötä sanat manuaalisesti alla olevaan kenttään:</p>
+            <textarea id="manual-text-input" placeholder="Syötä sanaparit, esim:&#10;cat - kissa&#10;dog - koira&#10;house - talo" rows="10" style="width: 100%; padding: 10px; border-radius: 5px; border: 1px solid #ddd;"></textarea>
+            <button id="parse-manual-text" class="analyze-btn" style="margin-top: 15px;">📝 Parsi sanat</button>
+        </div>
+    `;
+    
+    // Lisää kuuntelija manuaaliselle parsinnalle
+    document.getElementById('parse-manual-text').addEventListener('click', async () => {
+        const manualText = document.getElementById('manual-text-input').value;
+        if (manualText.trim()) {
+            detectedWords = await parseWordPairs(manualText);
+            if (detectedWords.length > 0) {
+                showDetectedWords();
+            } else {
+                alert('Ei löytynyt kelvollisia sanapareja. Tarkista muotoilu.');
+            }
+        }
+    });
 }
 
 // Create exam functionality

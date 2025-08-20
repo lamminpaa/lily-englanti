@@ -1988,6 +1988,57 @@ h2 {
     outline: none;
 }
 
+/* Manual input fallback */
+.manual-input-section {
+    text-align: center;
+    padding: 20px;
+}
+
+.manual-input-section h4 {
+    color: #e67e22;
+    margin-bottom: 15px;
+}
+
+.manual-input-section p {
+    color: #666;
+    margin-bottom: 20px;
+}
+
+.manual-input-section textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 15px;
+    border: 2px solid #ddd;
+    border-radius: 10px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.manual-input-section textarea:focus {
+    border-color: #667eea;
+    outline: none;
+}
+
+.manual-input-section .analyze-btn {
+    background: linear-gradient(135deg, #3498db, #2980b9);
+    color: white;
+    border: none;
+    padding: 12px 30px;
+    border-radius: 25px;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    margin-top: 15px;
+}
+
+.manual-input-section .analyze-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+}
+
 /* Breadcrumb navigation */
 .breadcrumb {
     display: flex;
