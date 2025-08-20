@@ -54,6 +54,27 @@ function updateModeScreen() {
     updateGameModeUnlocks();
 }
 
+function updateTopicProgressDisplay() {
+    const progress = progressTracker.getTopicProgress(currentTopic);
+    document.getElementById('topic-progress').textContent = progress;
+    
+    const progressBar = document.getElementById('progress-fill');
+    if (progressBar) {
+        progressBar.style.width = progress + '%';
+    }
+    
+    // Päivitä mastery-tilastot
+    const stats = progressTracker.getMasteryStats(currentTopic);
+    if (stats) {
+        document.getElementById('mastered-count').textContent = stats.mastered;
+        document.getElementById('expert-count').textContent = stats.expert;
+        document.getElementById('strong-count').textContent = stats.strong;
+        document.getElementById('good-count').textContent = stats.good;
+        document.getElementById('learning-count').textContent = stats.learning;
+        document.getElementById('rookie-count').textContent = stats.rookie;
+    }
+}
+
 function updateGameModeUnlocks() {
     const topicStats = progressTracker.getMasteryStats(currentTopic);
     if (!topicStats) return;
