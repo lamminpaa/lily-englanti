@@ -265,7 +265,14 @@ function showWord() {
     }
     
     const word = currentWords[currentWordIndex];
-    document.getElementById('finnish-word').textContent = word.finnish;
+    
+    // Kuunteluharjoituksessa ei näytetä suomenkielistä sanaa
+    if (currentGameMode === 'listen') {
+        document.getElementById('finnish-word').textContent = '🎧 Kuuntele ja valitse';
+    } else {
+        document.getElementById('finnish-word').textContent = word.finnish;
+    }
+    
     document.getElementById('word-image').textContent = word.emoji;
     document.getElementById('feedback').textContent = '';
     document.getElementById('feedback').className = 'feedback';
@@ -289,6 +296,10 @@ function showWord() {
         showChoices();
     } else if (currentGameMode === 'listen') {
         showListenChoices();
+        // Toista sana automaattisesti kuunteluharjoituksessa
+        setTimeout(() => {
+            speakWord(word.english);
+        }, 500);
     }
     
     // Näytä vaikeusaste ja mastery-taso
