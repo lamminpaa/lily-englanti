@@ -19,14 +19,48 @@
         <div id="menu-screen" class="screen active">
             <h2>🗺️ Oppimispolku</h2>
             
+            <div class="custom-exam-section">
+                <button class="exam-btn" id="exam-camera-btn">
+                    📸 Luo koe kuvasta
+                </button>
+                <p class="exam-description">Ota kuva kokeiden sanalistasta ja luo oma oppimispolku!</p>
+            </div>
+            
             <div class="learning-path">
                 <div class="topic-tier" id="basic-tier">
                     <h3>🌟 Perusteet</h3>
                     <p>Aloita täältä - nämä aiheet ovat aina saatavilla</p>
                     <div class="topic-grid">
-                        <button class="topic-btn" data-topic="animals" data-tier="basic">🐾 Eläimet</button>
-                        <button class="topic-btn" data-topic="colors" data-tier="basic">🎨 Värit</button>
-                        <button class="topic-btn" data-topic="numbers" data-tier="basic">🔢 Numerot</button>
+                        <button class="topic-btn" data-topic="animals" data-tier="basic">
+                            <div class="topic-content">
+                                <div class="topic-icon">🐾</div>
+                                <div class="topic-name">Eläimet</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-animals"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-animals">0%</div>
+                            </div>
+                        </button>
+                        <button class="topic-btn" data-topic="colors" data-tier="basic">
+                            <div class="topic-content">
+                                <div class="topic-icon">🎨</div>
+                                <div class="topic-name">Värit</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-colors"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-colors">0%</div>
+                            </div>
+                        </button>
+                        <button class="topic-btn" data-topic="numbers" data-tier="basic">
+                            <div class="topic-content">
+                                <div class="topic-icon">🔢</div>
+                                <div class="topic-name">Numerot</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-numbers"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-numbers">0%</div>
+                            </div>
+                        </button>
                     </div>
                 </div>
                 
@@ -34,8 +68,26 @@
                     <h3>🚀 Keskitaso</h3>
                     <p class="tier-requirement">Avautuu kun perusteet 50% valmiina</p>
                     <div class="topic-grid">
-                        <button class="topic-btn" data-topic="food" data-tier="intermediate">🍎 Ruoka</button>
-                        <button class="topic-btn" data-topic="family" data-tier="intermediate">👨‍👩‍👧‍👦 Perhe</button>
+                        <button class="topic-btn" data-topic="food" data-tier="intermediate">
+                            <div class="topic-content">
+                                <div class="topic-icon">🍎</div>
+                                <div class="topic-name">Ruoka</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-food"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-food">0%</div>
+                            </div>
+                        </button>
+                        <button class="topic-btn" data-topic="family" data-tier="intermediate">
+                            <div class="topic-content">
+                                <div class="topic-icon">👨‍👩‍👧‍👦</div>
+                                <div class="topic-name">Perhe</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-family"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-family">0%</div>
+                            </div>
+                        </button>
                     </div>
                 </div>
                 
@@ -43,16 +95,48 @@
                     <h3>🏆 Edistynyt</h3>
                     <p class="tier-requirement">Avautuu kun keskitaso 70% valmiina</p>
                     <div class="topic-grid">
-                        <button class="topic-btn" data-topic="school" data-tier="advanced">📚 Koulu</button>
-                        <button class="topic-btn" data-topic="body" data-tier="advanced">👤 Keho</button>
-                        <button class="topic-btn" data-topic="clothes" data-tier="advanced">👕 Vaatteet</button>
+                        <button class="topic-btn" data-topic="school" data-tier="advanced">
+                            <div class="topic-content">
+                                <div class="topic-icon">📚</div>
+                                <div class="topic-name">Koulu</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-school"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-school">0%</div>
+                            </div>
+                        </button>
+                        <button class="topic-btn" data-topic="body" data-tier="advanced">
+                            <div class="topic-content">
+                                <div class="topic-icon">👤</div>
+                                <div class="topic-name">Keho</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-body"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-body">0%</div>
+                            </div>
+                        </button>
+                        <button class="topic-btn" data-topic="clothes" data-tier="advanced">
+                            <div class="topic-content">
+                                <div class="topic-icon">👕</div>
+                                <div class="topic-name">Vaatteet</div>
+                                <div class="topic-progress-bar">
+                                    <div class="topic-progress-fill" id="progress-clothes"></div>
+                                </div>
+                                <div class="topic-progress-text" id="progress-text-clothes">0%</div>
+                            </div>
+                        </button>
                     </div>
                 </div>
             </div>
         </div>
 
         <div id="mode-screen" class="screen">
-            <h2>🎯 Harjoituspolku: <span id="current-topic-name"></span></h2>
+            <nav class="breadcrumb">
+                <span class="breadcrumb-item" id="breadcrumb-home">🏠 Päävalikko</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item current" id="breadcrumb-topic">🎯 <span id="current-topic-name"></span></span>
+            </nav>
+            <h2>🎯 Harjoituspolku: <span id="current-topic-name-title"></span></h2>
             
             <div class="game-modes-path">
                 <div class="mode-step" data-step="1">
@@ -176,10 +260,17 @@
                     </div>
                 </div>
             </div>
-            <button class="back-btn" id="back-to-menu">← Takaisin</button>
+            <button class="back-btn" id="back-to-menu">🏠 Takaisin päävalikkoon</button>
         </div>
 
         <div id="game-screen" class="screen">
+            <nav class="breadcrumb">
+                <span class="breadcrumb-item clickable" id="breadcrumb-game-home">🏠 Päävalikko</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item clickable" id="breadcrumb-game-topic">🎯 <span id="game-topic-name"></span></span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item current" id="breadcrumb-game-mode">📝 <span id="game-mode-name"></span></span>
+            </nav>
             <div class="game-area">
                 <div class="word-display">
                     <div class="finnish-word" id="finnish-word"></div>
@@ -302,18 +393,91 @@
                 <div class="feedback" id="feedback"></div>
                 <button class="next-btn" id="next-word" style="display: none;">Seuraava sana →</button>
             </div>
-            <button class="back-btn" id="back-to-mode">← Takaisin</button>
+            <div class="game-navigation">
+                <button class="back-btn" id="back-to-mode">← Takaisin harjoituksiin</button>
+                <button class="home-btn" id="home-from-game">🏠 Päävalikko</button>
+            </div>
         </div>
 
         <div id="results-screen" class="screen">
+            <nav class="breadcrumb">
+                <span class="breadcrumb-item clickable" id="breadcrumb-results-home">🏠 Päävalikko</span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item clickable" id="breadcrumb-results-topic">🎯 <span id="results-topic-name"></span></span>
+                <span class="breadcrumb-separator">›</span>
+                <span class="breadcrumb-item current">🎉 Tulokset</span>
+            </nav>
             <h2>Hienoa! 🎉</h2>
             <div class="results">
                 <p class="final-score">Sait <span id="final-score">0</span> pistettä!</p>
                 <p class="message" id="result-message"></p>
                 <div class="star-rating" id="star-rating"></div>
             </div>
-            <button class="play-again-btn" id="play-again">Pelaa uudelleen</button>
-            <button class="back-btn" id="back-to-menu-from-results">← Valikkoon</button>
+            <div class="results-navigation">
+                <button class="play-again-btn" id="play-again">🔄 Pelaa sama uudelleen</button>
+                <button class="try-different-btn" id="try-different-mode">🎯 Kokeile toista harjoitusta</button>
+                <button class="back-btn" id="back-to-menu-from-results">🏠 Takaisin päävalikkoon</button>
+            </div>
+        </div>
+        
+        <!-- Kuvan ottamis- ja parsintamodaali -->
+        <div id="exam-modal" class="modal">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>📸 Luo koe kuvasta</h3>
+                    <span class="close" id="close-exam-modal">&times;</span>
+                </div>
+                
+                <div class="modal-body">
+                    <div class="exam-step" id="step-capture">
+                        <h4>1. Ota kuva sanalistasta</h4>
+                        <p>Ota kuva kokeiden sanalistasta. AI tunnistaa sanat ja käännökset automaattisesti.</p>
+                        
+                        <div class="camera-container">
+                            <input type="file" id="image-input" accept="image/*" capture="camera" style="display: none;">
+                            <button class="camera-btn" id="take-photo-btn">
+                                📷 Ota kuva
+                            </button>
+                            <button class="upload-btn" id="upload-photo-btn">
+                                📁 Valitse tiedosto
+                            </button>
+                        </div>
+                        
+                        <div class="image-preview" id="image-preview" style="display: none;">
+                            <img id="preview-image" alt="Kuvan esikatselu">
+                            <button class="analyze-btn" id="analyze-image-btn">
+                                🤖 Analysoi kuva
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="exam-step" id="step-processing" style="display: none;">
+                        <h4>2. Analysoidaan kuvaa...</h4>
+                        <div class="loading-spinner">
+                            <div class="spinner"></div>
+                            <p>AI tunnistaa sanoja ja käännöksiä...</p>
+                        </div>
+                    </div>
+                    
+                    <div class="exam-step" id="step-results" style="display: none;">
+                        <h4>3. Tunnistetut sanat</h4>
+                        <p>Tarkista ja muokkaa tarvittaessa:</p>
+                        
+                        <div class="words-list" id="detected-words-list">
+                            <!-- Tähän tulee tunnistetut sanat -->
+                        </div>
+                        
+                        <div class="exam-options">
+                            <label for="exam-name-input">Kokeen nimi:</label>
+                            <input type="text" id="exam-name-input" placeholder="Esim. Lukion koe 3" maxlength="50">
+                            
+                            <button class="create-exam-btn" id="create-exam-btn">
+                                🎯 Luo oppimispolku
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 

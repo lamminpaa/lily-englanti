@@ -9,6 +9,7 @@ let correctAnswers = 0;
 let recognition = null;
 let currentGameMode = null;
 let currentPracticeMode = 'write';
+let gameStarted = false;
 let speechSynthesis = window.speechSynthesis;
 let isListening = false;
 let speechTimeout = null;
@@ -17,6 +18,31 @@ let perfectAnswers = 0;
 let comboMultiplier = 1;
 let audioContext = null;
 let soundEffectsEnabled = true;
+
+// Kannustavat virhepalautteet
+function getEncouragingFeedback() {
+    const messages = [
+        '💡 Hyvä yritys!',
+        '🌟 Lähellä oli!',
+        '🎯 Melkein osui!', 
+        '💪 Ei haittaa!',
+        '🔥 Kokeile uudelleen!',
+        '⭐ Oppiminen jatkuu!'
+    ];
+    return messages[Math.floor(Math.random() * messages.length)];
+}
+
+function getMotivationalTip() {
+    const tips = [
+        'Virheistä oppii parhaiten!',
+        'Jokainen yritys vie eteenpäin!',
+        'Muista tämä ensi kerralla!',
+        'Opit pian!',
+        'Harjoitus tekee mestarin!',
+        'Hyvin meni, jatka vain!'
+    ];
+    return tips[Math.floor(Math.random() * tips.length)];
+}
 
 const screens = {
     menu: document.getElementById('menu-screen'),
@@ -48,10 +74,48 @@ function updateModeScreen() {
         body: 'Keho',
         clothes: 'Vaatteet'
     };
-    document.getElementById('current-topic-name').textContent = topicNames[currentTopic] || currentTopic;
+    const topicName = topicNames[currentTopic] || currentTopic;
+    document.getElementById('current-topic-name').textContent = topicName;
+    document.getElementById('current-topic-name-title').textContent = topicName;
     
     updateTopicProgressDisplay();
     updateGameModeUnlocks();
+}
+
+function updateGameBreadcrumb() {
+    const topicNames = {
+        animals: 'Eläimet',
+        colors: 'Värit', 
+        numbers: 'Numerot',
+        food: 'Ruoka',
+        family: 'Perhe',
+        school: 'Koulu',
+        body: 'Keho',
+        clothes: 'Vaatteet'
+    };
+    
+    const modeNames = {
+        learn: 'Oppiminen',
+        choice: 'Monivalinta', 
+        practice: 'Kirjoitus',
+        listen: 'Kuuntelu'
+    };
+    
+    const topicName = topicNames[currentTopic] || currentTopic;
+    const modeName = modeNames[currentGameMode] || currentGameMode;
+    
+    // Update game screen breadcrumb
+    if (document.getElementById('game-topic-name')) {
+        document.getElementById('game-topic-name').textContent = topicName;
+    }
+    if (document.getElementById('game-mode-name')) {
+        document.getElementById('game-mode-name').textContent = modeName;
+    }
+    
+    // Update results screen breadcrumb  
+    if (document.getElementById('results-topic-name')) {
+        document.getElementById('results-topic-name').textContent = topicName;
+    }
 }
 
 function updateTopicProgressDisplay() {
@@ -203,6 +267,19 @@ function updateTopicTiers() {
     const basicTopics = ['animals', 'colors', 'numbers'];
     const intermediateTopics = ['food', 'family'];
     const advancedTopics = ['school', 'body', 'clothes'];
+    
+    // Päivitä jokaisen aiheen progresspalkit
+    const allTopics = [...basicTopics, ...intermediateTopics, ...advancedTopics];
+    allTopics.forEach(topic => {
+        const progress = progressTracker.getTopicProgress(topic);
+        const progressFill = document.getElementById(`progress-${topic}`);
+        const progressText = document.getElementById(`progress-text-${topic}`);
+        
+        if (progressFill && progressText) {
+            progressFill.style.width = progress + '%';
+            progressText.textContent = progress + '%';
+        }
+    });
     
     // Laske perusteiden edistyminen
     const basicProgress = basicTopics.reduce((sum, topic) => {
@@ -443,6 +520,7 @@ function startGame() {
     currentWordIndex = 0;
     comboMultiplier = 1;
     wordStartTime = null;
+    gameStarted = false;
     
     updateScore();
     updateProgressBar();
@@ -460,6 +538,7 @@ function startGame() {
     }
     
     showScreen('game');
+    updateGameBreadcrumb();
     
     document.getElementById('learn-area').style.display = 'none';
     document.getElementById('practice-area').style.display = 'none';
@@ -482,8 +561,19 @@ function startGame() {
 
 function showWord() {
     if (currentWordIndex >= currentWords.length) {
-        endGame();
+        // Tarkista onko peli edes aloitettu
+        if (gameStarted) {
+            endGame();
+        } else {
+            // Jos ei ole aloitettu peliä, palaa takaisin
+            showScreen('mode');
+        }
         return;
+    }
+    
+    // Merkitse peli aloitetuksi kun näytetään ensimmäinen sana
+    if (currentWordIndex === 0) {
+        gameStarted = true;
     }
     
     const word = currentWords[currentWordIndex];
@@ -1311,7 +1401,9 @@ function calculatePoints(isCorrect, currentWord) {
         comboMultiplier = 1;
         document.getElementById('streak').classList.remove('hot');
         
-        feedbackEl.innerHTML = `❌ Väärin. "${currentWord.english}" = "${currentWord.finnish}"`;
+        const encouragement = getEncouragingFeedback();
+        const tip = getMotivationalTip();
+        feedbackEl.innerHTML = `${encouragement} "${currentWord.english}" tarkoittaa "${currentWord.finnish}".<br><span style="font-size: 0.9em; color: #f39c12;">💪 ${tip}</span>`;
         feedbackEl.className = 'feedback incorrect';
     }
 }
@@ -1445,7 +1537,7 @@ function checkAnswer(answer) {
         }
         
     } else {
-        feedbackEl.textContent = `❌ Väärin. Oikea vastaus on "${currentWord.english}"`;
+        feedbackEl.innerHTML = `🌟 Lähellä oli! Oikea vastaus on "${currentWord.english}".<br><span style="font-size: 0.9em; color: #f39c12;">💡 Muista tämä ensi kerralla!</span>`;
         feedbackEl.className = 'feedback incorrect';
         wordImageEl.classList.add('incorrect');
         if (inputEl) inputEl.classList.add('incorrect');
@@ -1583,7 +1675,13 @@ function endGame() {
         message = 'Ihan hyvä alku! Harjoittelu tekee mestarin! 💪';
         stars = '⭐⭐';
     } else {
-        message = 'Ei haittaa! Yritä uudelleen! 🌟';
+        const encouragingMessages = [
+            'Hyvä alku! Oppiminen on matkaa! 🌱',
+            'Jokainen yritys tekee viisaammaksi! 💡',
+            'Erinomaista että yrität! Jatka vain! 🌟',
+            'Virheistä oppii parhaiten! Hyvin meni! 💪'
+        ];
+        message = encouragingMessages[Math.floor(Math.random() * encouragingMessages.length)];
         stars = '⭐';
     }
     
@@ -1678,6 +1776,216 @@ document.querySelectorAll('.topic-btn').forEach(btn => {
         updateProgressBar();
         showScreen('mode');
     });
+});
+
+// Exam creation functionality
+let detectedWords = [];
+let currentImageFile = null;
+
+// Modal controls
+const examModal = document.getElementById('exam-modal');
+const examCameraBtn = document.getElementById('exam-camera-btn');
+const closeExamModal = document.getElementById('close-exam-modal');
+
+examCameraBtn.addEventListener('click', () => {
+    examModal.style.display = 'block';
+    resetExamModal();
+});
+
+closeExamModal.addEventListener('click', () => {
+    examModal.style.display = 'none';
+});
+
+window.addEventListener('click', (e) => {
+    if (e.target === examModal) {
+        examModal.style.display = 'none';
+    }
+});
+
+function resetExamModal() {
+    document.getElementById('step-capture').style.display = 'block';
+    document.getElementById('step-processing').style.display = 'none';
+    document.getElementById('step-results').style.display = 'none';
+    document.getElementById('image-preview').style.display = 'none';
+    document.getElementById('exam-name-input').value = '';
+    detectedWords = [];
+    currentImageFile = null;
+}
+
+// Image handling
+const imageInput = document.getElementById('image-input');
+const takePhotoBtn = document.getElementById('take-photo-btn');
+const uploadPhotoBtn = document.getElementById('upload-photo-btn');
+const analyzeImageBtn = document.getElementById('analyze-image-btn');
+const previewImage = document.getElementById('preview-image');
+
+takePhotoBtn.addEventListener('click', () => {
+    imageInput.click();
+});
+
+uploadPhotoBtn.addEventListener('click', () => {
+    imageInput.click();
+});
+
+imageInput.addEventListener('change', handleImageSelect);
+
+function handleImageSelect(event) {
+    const file = event.target.files[0];
+    if (file) {
+        currentImageFile = file;
+        const reader = new FileReader();
+        reader.onload = (e) => {
+            previewImage.src = e.target.result;
+            document.getElementById('image-preview').style.display = 'block';
+        };
+        reader.readAsDataURL(file);
+    }
+}
+
+analyzeImageBtn.addEventListener('click', async () => {
+    if (!currentImageFile) return;
+    
+    document.getElementById('step-capture').style.display = 'none';
+    document.getElementById('step-processing').style.display = 'block';
+    
+    try {
+        // Mock AI analysis - täytä oikealla OCR:llä myöhemmin
+        setTimeout(() => {
+            // Simuloitu tunnistustulos
+            detectedWords = [
+                { english: 'cat', finnish: 'kissa' },
+                { english: 'dog', finnish: 'koira' },
+                { english: 'house', finnish: 'talo' },
+                { english: 'car', finnish: 'auto' },
+                { english: 'book', finnish: 'kirja' }
+            ];
+            
+            showDetectedWords();
+        }, 2000);
+        
+    } catch (error) {
+        alert('Kuvan analysoimisessa tapahtui virhe. Kokeile uudelleen.');
+        document.getElementById('step-capture').style.display = 'block';
+        document.getElementById('step-processing').style.display = 'none';
+    }
+});
+
+function showDetectedWords() {
+    document.getElementById('step-processing').style.display = 'none';
+    document.getElementById('step-results').style.display = 'block';
+    
+    const wordsList = document.getElementById('detected-words-list');
+    wordsList.innerHTML = '';
+    
+    detectedWords.forEach((word, index) => {
+        const wordPair = document.createElement('div');
+        wordPair.className = 'word-pair';
+        wordPair.innerHTML = `
+            <div>
+                <span class="word-english">${word.english}</span>
+                <span> - </span>
+                <span class="word-finnish">${word.finnish}</span>
+            </div>
+            <button class="remove-word" onclick="removeWord(${index})">×</button>
+        `;
+        wordsList.appendChild(wordPair);
+    });
+}
+
+function removeWord(index) {
+    detectedWords.splice(index, 1);
+    showDetectedWords();
+}
+
+// Create exam functionality
+document.getElementById('create-exam-btn').addEventListener('click', createCustomExam);
+
+function createCustomExam() {
+    const examName = document.getElementById('exam-name-input').value.trim();
+    
+    if (!examName) {
+        alert('Anna kokeelle nimi!');
+        return;
+    }
+    
+    if (detectedWords.length === 0) {
+        alert('Ei sanoja luotavaksi!');
+        return;
+    }
+    
+    // Luo uusi custom topic
+    const customTopicKey = `custom_${Date.now()}`;
+    
+    // Lisää sanat wordDatabase:en
+    if (!wordDatabase[customTopicKey]) {
+        wordDatabase[customTopicKey] = [];
+    }
+    wordDatabase[customTopicKey] = [...detectedWords];
+    
+    // Alusta progress tracker tälle topicille
+    if (!progressTracker.progress.topics[customTopicKey]) {
+        progressTracker.progress.topics[customTopicKey] = {
+            words: {},
+            level: 1,
+            mastered: false
+        };
+        
+        detectedWords.forEach(word => {
+            progressTracker.progress.topics[customTopicKey].words[word.english] = {
+                attempts: 0,
+                correct: 0,
+                mastered: false,
+                lastSeen: null,
+                masteryLevel: 0,
+                consecutiveCorrect: 0,
+                difficulty: 'medium',
+                avgResponseTime: 0,
+                fastCorrectCount: 0
+            };
+        });
+        
+        progressTracker.saveProgress();
+    }
+    
+    // Siirry suoraan tähän topiciin
+    currentTopic = customTopicKey;
+    examModal.style.display = 'none';
+    showScreen('mode');
+    
+    // Päivitä mode-screen custom-topicille
+    document.getElementById('current-topic-name').textContent = examName;
+    
+    alert(`Koe "${examName}" luotu! Voit nyt aloittaa oppimisen.`);
+}
+
+// Breadcrumb navigation event listeners
+document.getElementById('breadcrumb-home')?.addEventListener('click', () => {
+    showScreen('menu');
+});
+
+document.getElementById('breadcrumb-game-home')?.addEventListener('click', () => {
+    showScreen('menu');
+});
+
+document.getElementById('breadcrumb-game-topic')?.addEventListener('click', () => {
+    showScreen('mode');
+});
+
+document.getElementById('breadcrumb-results-home')?.addEventListener('click', () => {
+    showScreen('menu');
+});
+
+document.getElementById('breadcrumb-results-topic')?.addEventListener('click', () => {
+    showScreen('mode');
+});
+
+// Enhanced navigation buttons
+document.getElementById('home-from-game')?.addEventListener('click', () => {
+    showScreen('menu');
+});
+
+document.getElementById('try-different-mode')?.addEventListener('click', () => {
+    showScreen('mode');
 });
 
 showScreen('menu');
