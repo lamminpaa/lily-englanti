@@ -783,10 +783,177 @@ h2 {
     margin-right: 10px;
 }
 
+/* Paranneltu opetusmoodi */
 .learn-content {
-    text-align: center;
-    max-width: 600px;
+    max-width: 800px;
     margin: 0 auto;
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+}
+
+.word-showcase {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    padding: 40px;
+    text-align: center;
+    color: white;
+}
+
+.word-card {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 15px;
+    padding: 30px;
+    backdrop-filter: blur(10px);
+}
+
+.english-word-large {
+    font-size: 3em;
+    font-weight: bold;
+    margin-bottom: 20px;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.pronunciation-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+}
+
+.listen-btn {
+    background: rgba(255, 255, 255, 0.2);
+    color: white;
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    padding: 15px 30px;
+    border-radius: 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.listen-btn:hover {
+    background: rgba(255, 255, 255, 0.3);
+    transform: scale(1.05);
+}
+
+.phonetic {
+    font-size: 1.3em;
+    font-style: italic;
+    opacity: 0.9;
+}
+
+.learning-activities {
+    padding: 30px;
+}
+
+.activity-section {
+    margin-bottom: 30px;
+    padding: 25px;
+    background: #f8f9fa;
+    border-radius: 15px;
+    border-left: 5px solid #667eea;
+}
+
+.activity-section h4 {
+    margin: 0 0 15px 0;
+    color: #343a40;
+    font-size: 1.2em;
+}
+
+.example-sentence {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #e9ecef;
+}
+
+.sentence-text {
+    font-size: 1.1em;
+    margin-bottom: 15px;
+    font-style: italic;
+    color: #495057;
+}
+
+.sentence-audio-btn, .practice-pronunciation-btn {
+    background: linear-gradient(135deg, #28a745, #20c997);
+    color: white;
+    border: none;
+    padding: 12px 25px;
+    border-radius: 20px;
+    cursor: pointer;
+    font-size: 1em;
+    transition: all 0.3s ease;
+}
+
+.sentence-audio-btn:hover, .practice-pronunciation-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 15px rgba(40, 167, 69, 0.3);
+}
+
+.pronunciation-practice {
+    text-align: center;
+}
+
+.pronunciation-feedback {
+    margin-top: 15px;
+    padding: 10px;
+    border-radius: 8px;
+    font-weight: bold;
+}
+
+.pronunciation-feedback.correct {
+    background: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.pronunciation-feedback.incorrect {
+    background: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
+.memory-aid {
+    background: linear-gradient(135deg, #ffeaa7, #fab1a0);
+    padding: 20px;
+    border-radius: 10px;
+    font-size: 1.1em;
+    color: #2d3436;
+    text-align: center;
+}
+
+.learn-actions {
+    padding: 30px;
+    display: flex;
+    gap: 20px;
+    justify-content: center;
+    background: #f8f9fa;
+}
+
+.got-it-btn, .repeat-btn {
+    padding: 15px 30px;
+    border: none;
+    border-radius: 25px;
+    font-size: 1.1em;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-weight: bold;
+}
+
+.got-it-btn {
+    background: linear-gradient(135deg, #667eea, #764ba2);
+    color: white;
+}
+
+.repeat-btn {
+    background: linear-gradient(135deg, #74b9ff, #0984e3);
+    color: white;
+}
+
+.got-it-btn:hover, .repeat-btn:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .pronunciation {

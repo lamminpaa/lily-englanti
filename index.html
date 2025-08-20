@@ -75,33 +75,12 @@
                 
                 <div class="mode-step" data-step="2">
                     <div class="step-number">2</div>
-                    <div class="mode-card practice-card" id="practice-card">
-                        <div class="mode-icon">✍️</div>
-                        <h3>Kirjoitusharjoitus</h3>
-                        <p>Harjoittele kirjoittamista ja puhumista.</p>
-                        <div class="unlock-requirement" id="practice-requirement">
-                            🔒 Avautuu kun oppiminen 30% valmis
-                        </div>
-                        <div class="progress-indicator hidden">
-                            <div class="progress-bar-mini">
-                                <div class="progress-fill-mini" id="practice-progress"></div>
-                            </div>
-                            <span class="progress-text" id="practice-progress-text">0%</span>
-                        </div>
-                        <button class="mode-btn secondary-btn" data-gamemode="practice" disabled>
-                            Aloita harjoittelu
-                        </button>
-                    </div>
-                </div>
-                
-                <div class="mode-step" data-step="3">
-                    <div class="step-number">3</div>
                     <div class="mode-card choice-card" id="choice-card">
                         <div class="mode-icon">🎯</div>
                         <h3>Monivalinta</h3>
-                        <p>Testaa nopeasti oikeat vastaukset.</p>
+                        <p>Helpoin testi - tunnista oikea vastaus neljästä vaihtoehdosta.</p>
                         <div class="unlock-requirement" id="choice-requirement">
-                            🔒 Avautuu kun harjoittelu 50% valmis
+                            🔒 Avautuu kun oppiminen 30% valmis
                         </div>
                         <div class="progress-indicator hidden">
                             <div class="progress-bar-mini">
@@ -111,6 +90,27 @@
                         </div>
                         <button class="mode-btn third-btn" data-gamemode="choice" disabled>
                             Aloita testi
+                        </button>
+                    </div>
+                </div>
+                
+                <div class="mode-step" data-step="3">
+                    <div class="step-number">3</div>
+                    <div class="mode-card practice-card" id="practice-card">
+                        <div class="mode-icon">✍️</div>
+                        <h3>Kirjoitusharjoitus</h3>
+                        <p>Haastavampaa - kirjoita tai sano sana omin sanoin.</p>
+                        <div class="unlock-requirement" id="practice-requirement">
+                            🔒 Avautuu kun monivalinta 50% valmis
+                        </div>
+                        <div class="progress-indicator hidden">
+                            <div class="progress-bar-mini">
+                                <div class="progress-fill-mini" id="practice-progress"></div>
+                            </div>
+                            <span class="progress-text" id="practice-progress-text">0%</span>
+                        </div>
+                        <button class="mode-btn secondary-btn" data-gamemode="practice" disabled>
+                            Aloita harjoittelu
                         </button>
                     </div>
                 </div>
@@ -188,17 +188,54 @@
 
                 <div id="learn-area" class="input-area" style="display: none;">
                     <div class="learn-content">
-                        <div class="pronunciation">
-                            <button class="listen-btn" id="listen-word">
-                                🔊 Kuuntele ääntäminen
-                            </button>
-                            <div class="phonetic" id="phonetic-text"></div>
+                        <div class="word-showcase">
+                            <div class="word-card">
+                                <div class="english-word-large" id="english-word-display"></div>
+                                <div class="pronunciation-section">
+                                    <button class="listen-btn" id="listen-word">
+                                        🔊 Kuuntele ääntäminen
+                                    </button>
+                                    <div class="phonetic" id="phonetic-text"></div>
+                                </div>
+                            </div>
                         </div>
-                        <div class="word-info">
-                            <div class="english-word" id="english-word-display"></div>
-                            <div class="learn-tip" id="learn-tip"></div>
+                        
+                        <div class="learning-activities">
+                            <div class="activity-section">
+                                <h4>💡 Oppimistip</h4>
+                                <div class="learn-tip" id="learn-tip"></div>
+                            </div>
+                            
+                            <div class="activity-section">
+                                <h4>📝 Esimerkkilause</h4>
+                                <div class="example-sentence" id="example-sentence">
+                                    <div class="sentence-text" id="sentence-text"></div>
+                                    <button class="sentence-audio-btn" id="listen-sentence">
+                                        🔊 Kuuntele lause
+                                    </button>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-section">
+                                <h4>🎯 Harjoittele ääntämistä</h4>
+                                <div class="pronunciation-practice">
+                                    <button class="practice-pronunciation-btn" id="practice-pronunciation">
+                                        🎤 Sano sana ääneen
+                                    </button>
+                                    <div class="pronunciation-feedback" id="pronunciation-feedback"></div>
+                                </div>
+                            </div>
+                            
+                            <div class="activity-section">
+                                <h4>🔗 Muista helpommin</h4>
+                                <div class="memory-aid" id="memory-aid"></div>
+                            </div>
                         </div>
-                        <button class="got-it-btn" id="got-it">Ymmärsin! Seuraava sana</button>
+                        
+                        <div class="learn-actions">
+                            <button class="got-it-btn" id="got-it">✅ Ymmärsin! Seuraava sana</button>
+                            <button class="repeat-btn" id="repeat-word">🔄 Kuuntele uudelleen</button>
+                        </div>
                     </div>
                 </div>
 

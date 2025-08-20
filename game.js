@@ -87,36 +87,13 @@ function updateGameModeUnlocks() {
     document.getElementById('learn-progress').style.width = learnProgress + '%';
     document.getElementById('learn-progress-text').textContent = learnProgress + '%';
     
-    // Kirjoitusharjoitus - 30% oppimisesta
-    const practiceCard = document.getElementById('practice-card');
-    const practiceBtn = practiceCard.querySelector('button');
-    const practiceReq = document.getElementById('practice-requirement');
-    const practiceIndicator = practiceCard.querySelector('.progress-indicator');
-    
-    if (learnProgress >= 30) {
-        practiceCard.classList.add('available');
-        practiceCard.classList.remove('locked');
-        practiceBtn.disabled = false;
-        practiceReq.style.display = 'none';
-        practiceIndicator.classList.remove('hidden');
-        document.getElementById('practice-progress').style.width = practiceProgress + '%';
-        document.getElementById('practice-progress-text').textContent = practiceProgress + '%';
-    } else {
-        practiceCard.classList.remove('available');
-        practiceCard.classList.add('locked');
-        practiceBtn.disabled = true;
-        practiceReq.style.display = 'block';
-        practiceReq.textContent = `🔒 Avautuu kun oppiminen 30% valmis (nyt ${learnProgress}%)`;
-        practiceIndicator.classList.add('hidden');
-    }
-    
-    // Monivalinta - 50% harjoittelusta
+    // Monivalinta - 30% oppimisesta (helpoin)
     const choiceCard = document.getElementById('choice-card');
     const choiceBtn = choiceCard.querySelector('button');
     const choiceReq = document.getElementById('choice-requirement');
     const choiceIndicator = choiceCard.querySelector('.progress-indicator');
     
-    if (practiceProgress >= 50) {
+    if (learnProgress >= 30) {
         choiceCard.classList.add('available');
         choiceCard.classList.remove('locked');
         choiceBtn.disabled = false;
@@ -129,18 +106,41 @@ function updateGameModeUnlocks() {
         choiceCard.classList.add('locked');
         choiceBtn.disabled = true;
         choiceReq.style.display = 'block';
-        choiceReq.textContent = `🔒 Avautuu kun harjoittelu 50% valmis (nyt ${practiceProgress}%)`;
+        choiceReq.textContent = `🔒 Avautuu kun oppiminen 30% valmis (nyt ${learnProgress}%)`;
         choiceIndicator.classList.add('hidden');
     }
     
-    // Kuunteluharjoitus - 70% monivalinnasta
+    // Kirjoitusharjoitus - 50% monivalinnasta
+    const practiceCard = document.getElementById('practice-card');
+    const practiceBtn = practiceCard.querySelector('button');
+    const practiceReq = document.getElementById('practice-requirement');
+    const practiceIndicator = practiceCard.querySelector('.progress-indicator');
+    
+    if (choiceProgress >= 50) {
+        practiceCard.classList.add('available');
+        practiceCard.classList.remove('locked');
+        practiceBtn.disabled = false;
+        practiceReq.style.display = 'none';
+        practiceIndicator.classList.remove('hidden');
+        document.getElementById('practice-progress').style.width = practiceProgress + '%';
+        document.getElementById('practice-progress-text').textContent = practiceProgress + '%';
+    } else {
+        practiceCard.classList.remove('available');
+        practiceCard.classList.add('locked');
+        practiceBtn.disabled = true;
+        practiceReq.style.display = 'block';
+        practiceReq.textContent = `🔒 Avautuu kun monivalinta 50% valmis (nyt ${choiceProgress}%)`;
+        practiceIndicator.classList.add('hidden');
+    }
+    
+    // Kuunteluharjoitus - 70% kirjoitusharjoituksesta (vaikein)
     const listenCard = document.getElementById('listen-card');
     const listenBtn = listenCard.querySelector('button');
     const listenReq = document.getElementById('listen-requirement');
     const listenIndicator = listenCard.querySelector('.progress-indicator');
     const listenProgress = getGameModeProgress(currentTopic, 'listen');
     
-    if (choiceProgress >= 70) {
+    if (practiceProgress >= 70) {
         listenCard.classList.add('available');
         listenCard.classList.remove('locked');
         listenBtn.disabled = false;
@@ -153,7 +153,7 @@ function updateGameModeUnlocks() {
         listenCard.classList.add('locked');
         listenBtn.disabled = true;
         listenReq.style.display = 'block';
-        listenReq.textContent = `🔒 Avautuu kun monivalinta 70% valmis (nyt ${choiceProgress}%)`;
+        listenReq.textContent = `🔒 Avautuu kun kirjoitusharjoitus 70% valmis (nyt ${practiceProgress}%)`;
         listenIndicator.classList.add('hidden');
     }
 }
@@ -602,17 +602,141 @@ Keskim. aika: ${masteryInfo.avgTime.toFixed(1)}s`;
 
 function showLearnWord() {
     const currentWord = currentWords[currentWordIndex];
+    
+    // Suuret englanninkieliset sanat
     document.getElementById('english-word-display').textContent = currentWord.english;
+    document.getElementById('phonetic-text').textContent = phoneticData[currentWord.english] || '';
     
-    const phonetic = phoneticData[currentWord.english] || '';
-    document.getElementById('phonetic-text').textContent = phonetic;
-    
+    // Oppimistip
     const tip = learningTips[currentWord.english] || 'Toista sana ääneen useita kertoja!';
     document.getElementById('learn-tip').textContent = tip;
+    
+    // Esimerkkilause
+    const example = getExampleSentence(currentWord);
+    document.getElementById('sentence-text').innerHTML = `
+        <strong>🇬🇧 ${example.english}</strong><br>
+        <em>🇫🇮 ${example.finnish}</em>
+    `;
+    
+    // Muistiapu
+    document.getElementById('memory-aid').textContent = getMemoryAid(currentWord);
+    
+    // Alusta toiminnallisuudet
+    setupLearnModeButtons(currentWord);
     
     setTimeout(() => {
         speakWord(currentWord.english);
     }, 500);
+}
+
+function getExampleSentence(word) {
+    const examples = {
+        // Eläimet
+        dog: { english: 'The dog is playing in the park.', finnish: 'Koira leikkii puistossa.' },
+        cat: { english: 'The cat is sleeping on the bed.', finnish: 'Kissa nukkuu sängyllä.' },
+        bird: { english: 'The bird flies high in the sky.', finnish: 'Lintu lentää korkealla taivaalla.' },
+        fish: { english: 'The fish swims in the water.', finnish: 'Kala ui vedessä.' },
+        horse: { english: 'The horse runs fast.', finnish: 'Hevonen juoksee nopeasti.' },
+        cow: { english: 'The cow gives milk.', finnish: 'Lehmä antaa maitoa.' },
+        pig: { english: 'The pig is pink and round.', finnish: 'Sika on vaaleanpunainen ja pyöreä.' },
+        
+        // Värit
+        red: { english: 'The apple is red.', finnish: 'Omena on punainen.' },
+        blue: { english: 'The sky is blue.', finnish: 'Taivas on sininen.' },
+        yellow: { english: 'The sun is yellow.', finnish: 'Aurinko on keltainen.' },
+        green: { english: 'The grass is green.', finnish: 'Ruoho on vihreää.' },
+        
+        // Numerot
+        one: { english: 'I have one apple.', finnish: 'Minulla on yksi omena.' },
+        two: { english: 'Two cats are playing.', finnish: 'Kaksi kissaa leikkii.' },
+        three: { english: 'Three birds in the tree.', finnish: 'Kolme lintua puussa.' }
+    };
+    
+    return examples[word.english] || {
+        english: `This is a ${word.english}.`,
+        finnish: `Tämä on ${word.finnish}.`
+    };
+}
+
+function getMemoryAid(word) {
+    const aids = {
+        // Eläimet
+        dog: '🐕 DOG kuulostaa suomeksi "toki" - toki koira on ihmisen paras ystävä!',
+        cat: '🐈 CAT alkaa samalla tavalla kuin "katti" (kissanpentu)!',
+        bird: '🐦 BIRD - "Bööördi" kuulostaa linnun ääneltä!',
+        fish: '🐟 FISH - "Fiish" kuulostaa kalan ui-ääneltä vedessä!',
+        horse: '🐴 HORSE - "Hööörse" kuulostaa hevosen hirnunnalta!',
+        cow: '🐄 COW - "Kau" on lähellä lehmän "muu" ääntä!',
+        pig: '🐷 PIG - Lyhyt ja napakka kuten sian kähinä!',
+        
+        // Värit
+        red: '🔴 RED - "Red" kuulostaa samalta kuin se näyttää - tulisen punaiselta!',
+        blue: '🔵 BLUE - "Bluu" on helppo muistaa, kuulostaa "siniseltä"!',
+        yellow: '🟡 YELLOW - "Jellou" kuin auringon säteily!',
+        green: '🟢 GREEN - "Griin" kuin nurmikon vihreä väri!',
+        
+        // Numerot
+        one: '1️⃣ ONE - "Van" kuulostaa "yhdeltä"!',
+        two: '2️⃣ TWO - "Tuu" kuulostaa "toiselta"!',
+        three: '3️⃣ THREE - "Trii" kuulostaa "kolmelta"!'
+    };
+    
+    return aids[word.english] || `💡 Yritä yhdistää "${word.english}" johonkin tuttuun sanaan tai äänteeseen!`;
+}
+
+function setupLearnModeButtons(word) {
+    // Toista sana uudelleen
+    document.getElementById('repeat-word').onclick = () => {
+        speakWord(word.english);
+    };
+    
+    // Kuuntele esimerkkilause
+    document.getElementById('listen-sentence').onclick = () => {
+        const example = getExampleSentence(word);
+        speakWord(example.english);
+    };
+    
+    // Ääntämisharjoitus
+    document.getElementById('practice-pronunciation').onclick = () => {
+        startPronunciationPractice(word);
+    };
+}
+
+function startPronunciationPractice(word) {
+    const feedbackEl = document.getElementById('pronunciation-feedback');
+    feedbackEl.textContent = '🎤 Sano sana ääneen...';
+    feedbackEl.className = 'pronunciation-feedback';
+    
+    if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+        const recognition = new (window.SpeechRecognition || window.webkitSpeechRecognition)();
+        recognition.lang = 'en-US';
+        recognition.maxAlternatives = 1;
+        recognition.interimResults = false;
+        
+        recognition.onresult = (event) => {
+            const said = event.results[0][0].transcript.toLowerCase().trim();
+            const target = word.english.toLowerCase();
+            
+            if (said === target) {
+                feedbackEl.textContent = '🎉 Erinomaista! Ääntäminen oli oikein!';
+                feedbackEl.className = 'pronunciation-feedback correct';
+                playSuccessSound();
+            } else {
+                feedbackEl.textContent = `🤔 Kuulin "${said}". Yritä sanoa "${word.english}" uudelleen.`;
+                feedbackEl.className = 'pronunciation-feedback incorrect';
+            }
+        };
+        
+        recognition.onerror = () => {
+            feedbackEl.textContent = '❌ Puheentunnistus ei toiminut. Yritä uudelleen.';
+            feedbackEl.className = 'pronunciation-feedback incorrect';
+        };
+        
+        recognition.start();
+    } else {
+        feedbackEl.textContent = '❌ Selaimesi ei tue puheentunnistusta.';
+        feedbackEl.className = 'pronunciation-feedback incorrect';
+    }
 }
 
 function speakWord(word) {
