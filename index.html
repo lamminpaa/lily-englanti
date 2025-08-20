@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="fi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Englantipeli - Opi englantia hauskasti!</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="game-container">
+        <header>
+            <h1>🎮 Englantipeli 🎮</h1>
+            <div class="score-board">
+                <span class="score">Pisteet: <span id="score">0</span></span>
+                <span class="streak">Putki: <span id="streak">0</span></span>
+            </div>
+        </header>
+
+        <div id="menu-screen" class="screen active">
+            <h2>Valitse aihe</h2>
+            <div class="topic-grid">
+                <button class="topic-btn" data-topic="animals">🐾 Eläimet</button>
+                <button class="topic-btn" data-topic="colors">🎨 Värit</button>
+                <button class="topic-btn" data-topic="numbers">🔢 Numerot</button>
+                <button class="topic-btn" data-topic="food">🍎 Ruoka</button>
+                <button class="topic-btn" data-topic="family">👨‍👩‍👧‍👦 Perhe</button>
+                <button class="topic-btn" data-topic="school">📚 Koulu</button>
+                <button class="topic-btn" data-topic="body">👤 Keho</button>
+                <button class="topic-btn" data-topic="clothes">👕 Vaatteet</button>
+            </div>
+        </div>
+
+        <div id="mode-screen" class="screen">
+            <h2>Miten haluat oppia?</h2>
+            <div class="game-modes">
+                <div class="mode-card learn-card">
+                    <div class="mode-icon">📚</div>
+                    <h3>Opettele uudet sanat</h3>
+                    <p>Opi sanat ensin rauhassa. Kuulet ääntämisen ja näet kirjoitusasun.</p>
+                    <div class="features">
+                        <span class="feature">🔊 Ääntäminen</span>
+                        <span class="feature">👁️ Visuaalinen oppiminen</span>
+                        <span class="feature">⏰ Oma tahti</span>
+                    </div>
+                    <button class="mode-btn primary-btn" data-gamemode="learn">
+                        Aloita oppiminen
+                    </button>
+                </div>
+                <div class="mode-card practice-card">
+                    <div class="mode-icon">✍️</div>
+                    <h3>Kirjoitusharjoitus</h3>
+                    <p>Kirjoita oikea englanninkielinen sana näkemäsi kuvan perusteella.</p>
+                    <div class="features">
+                        <span class="feature">⌨️ Kirjoita sana</span>
+                        <span class="feature">🎤 Puheentunnistus</span>
+                        <span class="feature">📈 Seuraa edistymistä</span>
+                    </div>
+                    <button class="mode-btn secondary-btn" data-gamemode="practice">
+                        Aloita harjoittelu
+                    </button>
+                </div>
+                <div class="mode-card choice-card">
+                    <div class="mode-icon">🎯</div>
+                    <h3>Monivalinta</h3>
+                    <p>Valitse oikea englanninkielinen sana neljästä vaihtoehdosta.</p>
+                    <div class="features">
+                        <span class="feature">🎲 4 vaihtoehtoa</span>
+                        <span class="feature">⚡ Nopea peli</span>
+                        <span class="feature">🏆 Hauskaa kilpailua</span>
+                    </div>
+                    <button class="mode-btn third-btn" data-gamemode="choice">
+                        Aloita testi
+                    </button>
+                </div>
+                <div class="mode-card listen-card">
+                    <div class="mode-icon">👂</div>
+                    <h3>Kuunteluharjoitus</h3>
+                    <p>Kuuntele sana ja valitse oikea suomenkielinen käännös.</p>
+                    <div class="features">
+                        <span class="feature">🔊 Kuuntelu</span>
+                        <span class="feature">🇫🇮 Suomenkieliset vaihtoehdot</span>
+                        <span class="feature">👂 Ääntämisen harjoittelu</span>
+                    </div>
+                    <button class="mode-btn fourth-btn" data-gamemode="listen">
+                        Aloita kuuntelu
+                    </button>
+                </div>
+            </div>
+            <div class="progress-info">
+                <h4>Edistymisesi: <span id="topic-progress">0</span>%</h4>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progress-fill"></div>
+                </div>
+                <div class="mastery-stats" id="mastery-stats" style="margin-top: 15px;">
+                    <div class="mastery-breakdown">
+                        <div class="mastery-item">
+                            <span class="mastery-icon">🌟</span>
+                            <span class="mastery-count" id="mastered-count">0</span>
+                            <span class="mastery-label">Mestari</span>
+                        </div>
+                        <div class="mastery-item">
+                            <span class="mastery-icon">🏆</span>
+                            <span class="mastery-count" id="expert-count">0</span>
+                            <span class="mastery-label">Asiantuntija</span>
+                        </div>
+                        <div class="mastery-item">
+                            <span class="mastery-icon">💪</span>
+                            <span class="mastery-count" id="strong-count">0</span>
+                            <span class="mastery-label">Vahva</span>
+                        </div>
+                        <div class="mastery-item">
+                            <span class="mastery-icon">👍</span>
+                            <span class="mastery-count" id="good-count">0</span>
+                            <span class="mastery-label">Hyvä</span>
+                        </div>
+                        <div class="mastery-item">
+                            <span class="mastery-icon">📚</span>
+                            <span class="mastery-count" id="learning-count">0</span>
+                            <span class="mastery-label">Oppii</span>
+                        </div>
+                        <div class="mastery-item">
+                            <span class="mastery-icon">🌱</span>
+                            <span class="mastery-count" id="rookie-count">0</span>
+                            <span class="mastery-label">Aloittelija</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <button class="back-btn" id="back-to-menu">← Takaisin</button>
+        </div>
+
+        <div id="game-screen" class="screen">
+            <div class="game-area">
+                <div class="word-display">
+                    <div class="finnish-word" id="finnish-word"></div>
+                    <div class="word-image" id="word-image"></div>
+                </div>
+
+                <div id="learn-area" class="input-area" style="display: none;">
+                    <div class="learn-content">
+                        <div class="pronunciation">
+                            <button class="listen-btn" id="listen-word">
+                                🔊 Kuuntele ääntäminen
+                            </button>
+                            <div class="phonetic" id="phonetic-text"></div>
+                        </div>
+                        <div class="word-info">
+                            <div class="english-word" id="english-word-display"></div>
+                            <div class="learn-tip" id="learn-tip"></div>
+                        </div>
+                        <button class="got-it-btn" id="got-it">Ymmärsin! Seuraava sana</button>
+                    </div>
+                </div>
+
+                <div id="practice-area" class="input-area" style="display: none;">
+                    <div class="practice-mode-selector">
+                        <button class="mode-toggle active" id="write-toggle">✏️ Kirjoita</button>
+                        <button class="mode-toggle" id="speak-toggle">🎤 Puhu</button>
+                    </div>
+                    
+                    <div id="write-practice" class="practice-method">
+                        <input type="text" id="answer-input" placeholder="Kirjoita sana englanniksi">
+                        <button class="submit-btn" id="submit-answer">Tarkista</button>
+                    </div>
+                    
+                    <div id="speak-practice" class="practice-method" style="display: none;">
+                        <div class="microphone-visual" id="microphone-visual" style="display: none;">
+                            <div class="microphone-icon" id="microphone-icon">🎤</div>
+                            <div class="volume-bars" id="volume-bars">
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                                <div class="volume-bar"></div>
+                            </div>
+                        </div>
+                        <button class="speak-btn" id="start-speaking">
+                            🎤 Paina ja sano sana englanniksi
+                        </button>
+                        <div class="speech-tip" id="speech-tip" style="display: none;">
+                            💡 Vinkki: Sano sana selkeästi ja rauhallisesti mikrofoniin
+                        </div>
+                        <div class="speech-feedback" id="speech-feedback"></div>
+                    </div>
+                </div>
+
+                <div id="choice-area" class="input-area" style="display: none;">
+                    <div class="choices" id="choices">
+                        <button class="choice-btn" data-choice="0"></button>
+                        <button class="choice-btn" data-choice="1"></button>
+                        <button class="choice-btn" data-choice="2"></button>
+                        <button class="choice-btn" data-choice="3"></button>
+                    </div>
+                </div>
+
+                <div id="listen-area" class="input-area" style="display: none;">
+                    <div class="listen-controls">
+                        <button class="listen-word-btn" id="listen-word-again">
+                            🔊 Kuuntele uudelleen
+                        </button>
+                        <div class="listen-hint" id="listen-hint">
+                            💡 Kuuntele sana huolellisesti ja valitse oikea suomenkielinen käännös
+                        </div>
+                    </div>
+                    <div class="choices" id="listen-choices">
+                        <button class="choice-btn" data-choice="0"></button>
+                        <button class="choice-btn" data-choice="1"></button>
+                        <button class="choice-btn" data-choice="2"></button>
+                        <button class="choice-btn" data-choice="3"></button>
+                    </div>
+                </div>
+
+                <div class="feedback" id="feedback"></div>
+                <button class="next-btn" id="next-word" style="display: none;">Seuraava sana →</button>
+            </div>
+            <button class="back-btn" id="back-to-mode">← Takaisin</button>
+        </div>
+
+        <div id="results-screen" class="screen">
+            <h2>Hienoa! 🎉</h2>
+            <div class="results">
+                <p class="final-score">Sait <span id="final-score">0</span> pistettä!</p>
+                <p class="message" id="result-message"></p>
+                <div class="star-rating" id="star-rating"></div>
+            </div>
+            <button class="play-again-btn" id="play-again">Pelaa uudelleen</button>
+            <button class="back-btn" id="back-to-menu-from-results">← Valikkoon</button>
+        </div>
+    </div>
+
+    <script src="words.js"></script>
+    <script src="progress.js"></script>
+    <script src="game.js"></script>
+</body>
+</html>
