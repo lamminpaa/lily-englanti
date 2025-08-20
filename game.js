@@ -879,8 +879,8 @@ function handleChoiceAnswer(selectedIndex, mode) {
     }
     
     // Tallenna adaptiivisen oppimisen tiedot  
-    const responseTime = wordStartTime ? (Date.now() - wordStartTime) / 1000 : 0;
-    progressTracker.recordAttempt(currentTopic, currentWord.english, isCorrect, responseTime, false);
+    const choiceResponseTime = wordStartTime ? (Date.now() - wordStartTime) / 1000 : 0;
+    progressTracker.recordAttempt(currentTopic, currentWord.english, isCorrect, choiceResponseTime, false);
     updateScore(isCorrect);
     
     // Poista käytöstä kaikki napit
@@ -997,7 +997,7 @@ function checkAnswer(answer) {
     const inputEl = document.getElementById('answer-input');
     
     // Laske vastausaika ja nopeusbonukset
-    const responseTime = wordStartTime ? (Date.now() - wordStartTime) / 1000 : 0;
+    const calcResponseTime = wordStartTime ? (Date.now() - wordStartTime) / 1000 : 0;
     let pointsEarned = 0;
     let bonusText = '';
     
@@ -1019,10 +1019,10 @@ function checkAnswer(answer) {
         pointsEarned += difficultyBonus[difficulty];
         
         // Nopeusbonukset
-        if (responseTime < 3) {
+        if (calcResponseTime < 3) {
             pointsEarned += 10;
             bonusText += ' ⚡ Nopea! (+10)';
-        } else if (responseTime < 5) {
+        } else if (calcResponseTime < 5) {
             pointsEarned += 5;
             bonusText += ' 💨 Ripeä! (+5)';
         }
@@ -1114,8 +1114,8 @@ function checkAnswer(answer) {
     }, 1000);
     
     // Tallenna adaptiivisen oppimisen tiedot
-    const responseTime = wordStartTime ? (Date.now() - wordStartTime) / 1000 : 0;
-    progressTracker.recordAttempt(currentTopic, currentWord.english, isCorrect, responseTime, false);
+    const practiceResponseTime = wordStartTime ? (Date.now() - wordStartTime) / 1000 : 0;
+    progressTracker.recordAttempt(currentTopic, currentWord.english, isCorrect, practiceResponseTime, false);
     
     updateScore(isCorrect);
     
